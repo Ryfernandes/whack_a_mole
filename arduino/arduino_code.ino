@@ -32,12 +32,14 @@ long pistonDelayStarts[3] = {0, 0, 0};
 
 double delayTime = 0.3;
 
+//writes values in stores lists of pistons to the solenoids
 void updatePistons() {
   digitalWrite(solenoidPin1, pistonExtends[0]);
   digitalWrite(solenoidPin2, pistonExtends[1]);
   digitalWrite(solenoidPin3, pistonExtends[2]);
 }
 
+//resets variables at the start of a new game when the button is pressed
 void startGame() {
   score = 0;
   play = true;
@@ -55,6 +57,7 @@ void startGame() {
   updatePistons();
 }
 
+//prints the final score at the end of the game
 void endGame() {
   Serial.print("Score: ");
   Serial.print(score);
@@ -70,6 +73,7 @@ void endGame() {
   pistonDelays[1] = 0;
   pistonDelays[2] = 0;
 
+  //puts all of the pistons down
   digitalWrite(solenoidPin1, LOW);
   digitalWrite(solenoidPin2, LOW);
   digitalWrite(solenoidPin3, LOW);
@@ -77,6 +81,7 @@ void endGame() {
   updatePistons();
 }
 
+//extends the given piston and updates the lists of pistons to indicate that the piston is now up
 void extendPiston(int pistonNum) {
   pistonExtends[pistonNum] = 1;
   pistonStarts[pistonNum] = millis();
@@ -85,6 +90,7 @@ void extendPiston(int pistonNum) {
   updatePistons();
 }
 
+//spawns a random piston based on the pistons that are still down
 void spawnPiston() {
   int piston = 0;
 
@@ -104,6 +110,7 @@ void spawnPiston() {
   }
 }
 
+//opens the serial port to print to the computer and sets each of the pins for the solenoids/buttons
 void setup() {
   Serial.begin(9600);
 
@@ -121,10 +128,13 @@ void setup() {
   pinMode(LED_BUILTIN, OUTPUT);
 }
 
+//gameplay loop
 void loop() {
+  //triggered when button is pressed
   if(play) {
     digitalWrite(LED_BUILTIN, HIGH);
 
+    //tracks when to end the game
     if((millis() - startTime) > (gameDurSec * 1000) || digitalRead(buttonStart) == LOW) {
       delay(2000);
       endGame();
@@ -132,6 +142,7 @@ void loop() {
 
     updatePistons();
 
+    //updates piston life/time the piston stays up based on the current score (makes game more difficult)
     pistonLife = 2.0 - (0.15 * score);
     spawnBase = 2.0 - (0.075 * score);
 
@@ -142,6 +153,7 @@ void loop() {
       spawnBase = 1.10;
     }
 
+    //checks if it is time to spawn a new mole and if so, raises a piston
     if(numUp < 3) {
       if((millis() - lastSpawn) > spawnSpace) {
         spawnPiston();
@@ -213,6 +225,7 @@ void loop() {
     }
   }
 
+  //put down pistons that have been up for long enough
   if(pistonDelays[0] == 1) {
     if((millis() - pistonDelayStarts[0]) > delayTime * 1000) {
       pistonDelays[0] = 0;
@@ -232,6 +245,7 @@ void loop() {
     }
   }
   } else {
+    //checks for game start
     digitalWrite(LED_BUILTIN, LOW);
 
     if(digitalRead(buttonStart) == LOW) {
