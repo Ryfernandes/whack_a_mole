@@ -1,3 +1,5 @@
+//For full comments on functionality of main code, see arduino folder
+
 #include <iostream>
 #include <chrono>
 
@@ -31,10 +33,12 @@ long pistonDelayStarts[3] = {0, 0, 0};
 
 double delayTime = 0.3;
 
+//simulates arduino random function
 int random(int low, int high) {
   return rand() % (high - low) + low;
 }
 
+//simulates arduino millis function
 long millis() {
   return std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count() - programStart;
 }
@@ -116,11 +120,14 @@ void spawnPiston() {
   }
 }
 
+//start of program
 int main() {
   std::cout << "Hello\n";
 
+  //sets start time
   programStart = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
 
+  //only runs program for set test time
   while(millis() < 60000) {
     if(play) {
       if((millis() - startTime) > (gameDurSec * 1000)) {
